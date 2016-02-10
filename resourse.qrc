@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Buh.png</file>
+        <file>delete.png</file>
+        <file>edit.png</file>
+        <file>fileclose.png</file>
+        <file>food.ico</file>
+        <file>food.png</file>
+        <file>list.png</file>
+        <file>print.png</file>
+        <file>see.png</file>
+        <file>Sklad.png</file>
+        <file>add.png</file>
+        <file>QWidgetStyle.txt</file>
+    </qresource>
+</RCC>
