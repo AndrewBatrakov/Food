@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "prefixform.h"
 #include "unitform.h"
+#include "nodeform.h"
+#include "boolitemdelegate.h"
+#include "storagespaceform.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -13,10 +16,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     QPixmap pixLogo(":/food.png");
     setWindowIcon(pixLogo);
+
     QFile file(":/QWidgetStyle.txt");
     file.open(QFile::ReadOnly);
     QString styleSheetString = QLatin1String(file.readAll());
     QWidget::setStyleSheet(styleSheetString);
+
     readSettings();
     createPanel();
     setFilter =false;
@@ -25,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     createContextMenu();
     fileExchange.setFileName("exchange.txt");
     fileExchange.open(QIODevice::ReadWrite);
+    viewTemplateTable("node");
 }
 
 MainWindow::~MainWindow()
@@ -132,10 +138,10 @@ void MainWindow::createActions()
     //References Action
     unitAction = new QAction(tr("Unit..."),this);
     connect(unitAction,SIGNAL(triggered()),this,SLOT(viewUnit()));
-    //nodeAction = new QAction(tr("Nodes..."),this);
-    //connect(nodeAction,SIGNAL(triggered()),this,SLOT(viewNode()));
-    //employeeAction = new QAction(tr("Employee..."),this);
-    //connect(employeeAction,SIGNAL(triggered()),this,SLOT(viewEmployee()));
+    nodeAction = new QAction(tr("Nodes..."),this);
+    connect(nodeAction,SIGNAL(triggered()),this,SLOT(viewNode()));
+    storageSpaceAction = new QAction(tr("Storage Space..."),this);
+    connect(storageSpaceAction,SIGNAL(triggered()),this,SLOT(viewStorageSpace()));
     //subdivisionAction = new QAction(tr("Subdivision..."),this);
     //connect(subdivisionAction,SIGNAL(triggered()),this,SLOT(viewSubdivision()));
 //    postAction = new QAction(tr("Post..."),this);
@@ -191,7 +197,7 @@ void MainWindow::createMenu()
 
     referenceMenu = menuBar()->addMenu(tr("References"));
     referenceMenu->addAction(unitAction);
-//    referenceMenu->addAction(employeeAction);
+    referenceMenu->addAction(storageSpaceAction);
 //    referenceMenu->addAction(subdivisionAction);
 //    referenceMenu->addAction(postAction);
 //    referenceMenu->addSeparator();
@@ -201,9 +207,9 @@ void MainWindow::createMenu()
 //    referenceMenu->addAction(diseaseAction);
 //    referenceMenu->addAction(typeOfWorkAction);
 //    referenceMenu->addAction(locationActon);
-//    referenceMenu->addSeparator();
-//    referenceMenu->addAction(nodeAction);
-//    referenceMenu->addSeparator();
+    referenceMenu->addSeparator();
+    referenceMenu->addAction(nodeAction);
+    referenceMenu->addSeparator();
 
     documentMenu = menuBar()->addMenu(tr("Documents"));
 //    documentMenu->addAction(preparationDocAction);
@@ -325,9 +331,9 @@ void MainWindow::viewTemplateTable(QString tempTable)
     QString strivgValue;
     bool delAll = false;
     if(tempTable == "node"){
-        templateModel->setHeaderData(1,Qt::Horizontal,tr("Code"));
-        templateModel->setHeaderData(2,Qt::Horizontal,tr("Name"));
-        templateModel->setHeaderData(3,Qt::Horizontal,tr("Head"));
+        templateModel->setHeaderData(0,Qt::Horizontal,tr("Code"));
+        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+        templateModel->setHeaderData(2,Qt::Horizontal,tr("Head"));
         if(setFilter){
             templateModel->setFilter(QString("nodename LIKE '%%1%'").arg(filterTable));
         }
@@ -348,13 +354,19 @@ void MainWindow::viewTemplateTable(QString tempTable)
             templateModel->setFilter(QString("unitname LIKE '%%1%'").arg(filterTable));
         }
         strivgValue = tr("Unit");
+    }else if(tempTable == "storagespace"){
+        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+        if(setFilter){
+            templateModel->setFilter(QString("storagespacename LIKE '%%1%'").arg(filterTable));
+        }
+        strivgValue = tr("Storage Space");
     }
     if(!delAll){
         templateModel->select();
         QHeaderView *head = tableView->horizontalHeader();
         connect(head,SIGNAL(sectionClicked(int)),this,SLOT(sortTable(int)));
         tableView->setModel(templateModel);
-        if(tempTable == "treatmentdoc" || tempTable == "nodes" || tempTable == "contractdoc"){
+        if(tempTable == "treatmentdoc" || tempTable == "node" || tempTable == "contractdoc"){
             tableView->setColumnHidden(0, false);
         }else{
             tableView->setColumnHidden(0, true);
@@ -364,7 +376,7 @@ void MainWindow::viewTemplateTable(QString tempTable)
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         if(tempTable == "node"){
-            //tableView->setItemDelegateForColumn(3,new BoolItemDelegate(this));
+            tableView->setItemDelegateForColumn(2,new BoolItemDelegate(this));
             //templateModel->record().
         }
         tableView->setAlternatingRowColors(true);
@@ -398,10 +410,13 @@ void MainWindow::addRecordOfTable()
 {
     QString valueTemp = templateModel->tableName();
     if(valueTemp == "node"){
-        //UnitForm form("",this,false);
-        //form.exec();
+        NodeForm form("",this,false);
+        form.exec();
     }else if(valueTemp == "unit"){
         UnitForm form("",this,false);
+        form.exec();
+    }else if(valueTemp == "storagespace"){
+        StorageSpaceForm form("",this,false);
         form.exec();
     }
     QModelIndex modIndex = tableView->currentIndex();
@@ -431,11 +446,15 @@ void MainWindow::deleteRecordOfTable()
             QSqlRecord record = templateModel->record(index.row());
             if(valueTemp == "node"){
                 iDValue = record.value("nodeid").toString();
-                //UnitForm form(iDValue,this,false);
-                //form.deleteRecord();
+                NodeForm form(iDValue,this,false);
+                form.deleteRecord();
             }else if(valueTemp == "unit"){
                 iDValue = record.value("unitid").toString();
                 UnitForm form(iDValue,this,false);
+                form.deleteRecord();
+            }else if(valueTemp == "storagespace"){
+                iDValue = record.value("storagespaceid").toString();
+                StorageSpaceForm form(iDValue,this,false);
                 form.deleteRecord();
             }
         }
@@ -451,11 +470,15 @@ void MainWindow::editRecordOfTable()
         QSqlRecord record =templateModel->record(index.row());
         if(stringVar == "node"){
             QString iD = record.value("nodeid").toString();
-            //UnitForm form(iD, this, false);
-            //form.exec();
+            NodeForm form(iD, this, false);
+            form.exec();
         }else if(stringVar == "unit"){
             QString iD = record.value("unitid").toString();
             UnitForm form(iD, this, false);
+            form.exec();
+        }else if(stringVar == "storagespace"){
+            QString iD = record.value("storagespaceid").toString();
+            StorageSpaceForm form(iD, this, false);
             form.exec();
         }
     }
@@ -467,4 +490,14 @@ void MainWindow::editRecordOfTable()
 void MainWindow::viewUnit()
 {
     viewTemplateTable("unit");
+}
+
+void MainWindow::viewNode()
+{
+    viewTemplateTable("node");
+}
+
+void MainWindow::viewStorageSpace()
+{
+    viewTemplateTable("storagespace");
 }

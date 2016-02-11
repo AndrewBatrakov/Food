@@ -18,7 +18,7 @@ UnitForm::UnitForm(QString id, QWidget *parent, bool onlyForRead) :
     labelFullName = new QLabel(tr("Full Name:"));
     editFullName = new LineEdit;
     editFullName->setReadOnly(onlyForRead);
-    QRegExp regExpF("[\\x0410-\\x044f.\"]{50}");
+    QRegExp regExpF("[\\x0410-\\x044f.\"]{100}");
     editFullName->setValidator(new QRegExpValidator(regExpF,this));
     labelFullName->setBuddy(editFullName);
 
@@ -68,6 +68,10 @@ UnitForm::UnitForm(QString id, QWidget *parent, bool onlyForRead) :
     if(!exchangeFile.isOpen()){
         exchangeFile.open(QIODevice::ReadWrite);
     }
+    QWidget::setTabOrder(editName,editFullName);
+    QWidget::setTabOrder(editFullName,saveButton);
+    QWidget::setTabOrder(saveButton,cancelButton);
+    //QWidget::setTabOrder(cancelButton,editName);
 }
 
 void UnitForm::editRecord()
@@ -83,7 +87,7 @@ void UnitForm::editRecord()
             query.prepare("UPDATE unit SET unitname = :name, fullname = :fullname"
                           " WHERE unitid = :id");
             query.bindValue(":name",editName->text());
-            query.bindValue("fullname",editFullName->text());
+            query.bindValue(":fullname",editFullName->text());
             query.bindValue(":id",indexTemp);
             query.exec();
             line += "UPDATE unit SET unitnname = '";

@@ -1,15 +1,14 @@
-#ifndef STORAGESPACEFORM_H
-#define STORAGESPACEFORM_H
+#ifndef NODEFORM_H
+#define NODEFORM_H
 
 #include <QtWidgets>
 #include "lineedit.h"
 
-class StorageSpaceForm : public QDialog
+class NodeForm : public QDialog
 {
     Q_OBJECT
-
 public:
-    StorageSpaceForm(QString, QWidget *, bool);
+    NodeForm(QString, QWidget *, bool);
     void done(int result);
     QString rowOut() const {return indexTemp;};
 
@@ -22,8 +21,13 @@ private slots:
     void writeSettings();
 
 private:
+    QLabel *labelKod;
+    LineEdit *editKod;
     QLabel *labelName;
     LineEdit *editName;
+    QLabel *labelHead;
+    QCheckBox *editHead;
+    
 
     QPushButton *saveButton;
     QPushButton *cancelButton;
@@ -33,4 +37,4 @@ private:
     QFile exchangeFile;
 };
 
-#endif // STORAGESPACEFORM_H
+#endif // NODEFORM_H

@@ -32,9 +32,9 @@ private slots:
     void editRecordOfTable();
     //void copyRecordOfTable();
 
-    //void viewNode();
+    void viewNode();
     void viewUnit();
-    //void viewPost();
+    void viewStorageSpace();
     //void viewSubdivision();
     //void viewMedicalService();
     //void viewTreatment();
@@ -79,6 +79,7 @@ private:
     QMenu *referenceMenu;
     QAction *nodeAction;
     QAction *unitAction;
+    QAction *storageSpaceAction;
 
     QMenu *documentMenu;
     QAction *preparationDocAction;
