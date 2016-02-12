@@ -1,9 +1,20 @@
 #include "mainwindow.h"
+
+//Service
 #include "prefixform.h"
-#include "unitform.h"
-#include "nodeform.h"
 #include "boolitemdelegate.h"
+#include "horizontalitemdelegate.h"
+
+//Reference
+#include "nodeform.h"
+#include "unitform.h"
 #include "storagespaceform.h"
+#include "contractorform.h"
+#include "organizationform.h"
+#include "nomenclatureform.h"
+#include "ingredientform.h"
+
+//Documents
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -142,14 +153,14 @@ void MainWindow::createActions()
     connect(nodeAction,SIGNAL(triggered()),this,SLOT(viewNode()));
     storageSpaceAction = new QAction(tr("Storage Space..."),this);
     connect(storageSpaceAction,SIGNAL(triggered()),this,SLOT(viewStorageSpace()));
-    //subdivisionAction = new QAction(tr("Subdivision..."),this);
-    //connect(subdivisionAction,SIGNAL(triggered()),this,SLOT(viewSubdivision()));
-//    postAction = new QAction(tr("Post..."),this);
-//    connect(postAction,SIGNAL(triggered()),this,SLOT(viewPost()));
-//    medicalService = new QAction(tr("Medical Service..."),this);
-//    connect(medicalService,SIGNAL(triggered()),this,SLOT(viewMedicalService()));
-//    treatmentAction = new QAction(tr("Treatment..."),this);
-//    connect(treatmentAction,SIGNAL(triggered()),this,SLOT(viewTreatment()));
+    contractorAction = new QAction(tr("Contractor..."),this);
+    connect(contractorAction,SIGNAL(triggered()),this,SLOT(viewContractor()));
+    organizationAction = new QAction(tr("Organization..."),this);
+    connect(organizationAction,SIGNAL(triggered()),this,SLOT(viewOrganization()));
+    nomenclatureAction = new QAction(tr("Nomenclature..."),this);
+    connect(nomenclatureAction,SIGNAL(triggered()),this,SLOT(viewNomenclature()));
+    ingridientAction = new QAction(tr("Ingridient..."),this);
+    connect(ingridientAction,SIGNAL(triggered()),this,SLOT(viewIngridient()));
 //    diseaseAction = new QAction(tr("Disease..."),this);
 //    connect(diseaseAction,SIGNAL(triggered()),this,SLOT(viewDisease()));
 //    locationActon = new QAction(tr("Location..."),this);
@@ -198,8 +209,10 @@ void MainWindow::createMenu()
     referenceMenu = menuBar()->addMenu(tr("References"));
     referenceMenu->addAction(unitAction);
     referenceMenu->addAction(storageSpaceAction);
-//    referenceMenu->addAction(subdivisionAction);
-//    referenceMenu->addAction(postAction);
+    referenceMenu->addAction(contractorAction);
+    referenceMenu->addAction(organizationAction);
+    referenceMenu->addAction(nomenclatureAction);
+    referenceMenu->addAction(ingridientAction);
 //    referenceMenu->addSeparator();
 //    referenceMenu->addAction(preparationAction);
 //    referenceMenu->addAction(medicalService);
@@ -360,6 +373,36 @@ void MainWindow::viewTemplateTable(QString tempTable)
             templateModel->setFilter(QString("storagespacename LIKE '%%1%'").arg(filterTable));
         }
         strivgValue = tr("Storage Space");
+    }else if(tempTable == "contractor"){
+        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+        if(setFilter){
+            templateModel->setFilter(QString("contractorname LIKE '%%1%'").arg(filterTable));
+        }
+        strivgValue = tr("Contractor");
+    }else if(tempTable == "organization"){
+        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+        if(setFilter){
+            templateModel->setFilter(QString("organizationname LIKE '%%1%'").arg(filterTable));
+        }
+        strivgValue = tr("Organization");
+    }else if(tempTable == "nomenclature"){
+        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+        templateModel->setHeaderData(2,Qt::Horizontal,tr("Unit"));
+        templateModel->setRelation(2,QSqlRelation("unit","unitid","unitname"));
+        templateModel->setHeaderData(3,Qt::Horizontal,tr("Cost"));
+        if(setFilter){
+            templateModel->setFilter(QString("nomenclaturename LIKE '%%1%'").arg(filterTable));
+        }
+        strivgValue = tr("Nomenclature");
+    }else if(tempTable == "ingridient"){
+//        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+//        templateModel->setHeaderData(2,Qt::Horizontal,tr("Unit"));
+//        templateModel->setRelation(2,QSqlRelation("unit","unitid","unitname"));
+//        templateModel->setHeaderData(3,Qt::Horizontal,tr("Cost"));
+//        if(setFilter){
+//            templateModel->setFilter(QString("nomenclaturename LIKE '%%1%'").arg(filterTable));
+//        }
+        strivgValue = tr("Ingridient");
     }
     if(!delAll){
         templateModel->select();
@@ -371,12 +414,15 @@ void MainWindow::viewTemplateTable(QString tempTable)
         }else{
             tableView->setColumnHidden(0, true);
         }
-
         tableView->setSelectionMode(QAbstractItemView::SingleSelection);
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         if(tempTable == "node"){
             tableView->setItemDelegateForColumn(2,new BoolItemDelegate(this));
+            //templateModel->record().
+        }
+        if(tempTable == "nomenclature"){
+            tableView->setItemDelegateForColumn(3,new HorizontalItemDelegate(this,"left"));
             //templateModel->record().
         }
         tableView->setAlternatingRowColors(true);
@@ -418,6 +464,18 @@ void MainWindow::addRecordOfTable()
     }else if(valueTemp == "storagespace"){
         StorageSpaceForm form("",this,false);
         form.exec();
+    }else if(valueTemp == "contractor"){
+        ContractorForm form("",this,false);
+        form.exec();
+    }else if(valueTemp == "organization"){
+        OrganizationForm form("",this,false);
+        form.exec();
+    }else if(valueTemp == "nomenclature"){
+        NomenclatureForm form("",this,false);
+        form.exec();
+    }else if(valueTemp == "ingridient"){
+        IngredientForm form("",this,false);
+        form.exec();
     }
     QModelIndex modIndex = tableView->currentIndex();
     MainWindow::updatePanel(modIndex);
@@ -456,6 +514,22 @@ void MainWindow::deleteRecordOfTable()
                 iDValue = record.value("storagespaceid").toString();
                 StorageSpaceForm form(iDValue,this,false);
                 form.deleteRecord();
+            }else if(valueTemp == "contractor"){
+                iDValue = record.value("contractorid").toString();
+                ContractorForm form(iDValue,this,false);
+                form.deleteRecord();
+            }else if(valueTemp == "organization"){
+                iDValue = record.value("organizationid").toString();
+                OrganizationForm form(iDValue,this,false);
+                form.deleteRecord();
+            }else if(valueTemp == "nomenclature"){
+                iDValue = record.value("nomenclatureid").toString();
+                NomenclatureForm form(iDValue,this,false);
+                form.deleteRecord();
+            }else if(valueTemp == "ingridient"){
+                iDValue = record.value("ingridientid").toString();
+                IngredientForm form(iDValue,this,false);
+                //form.deleteRecord();
             }
         }
     }
@@ -480,6 +554,22 @@ void MainWindow::editRecordOfTable()
             QString iD = record.value("storagespaceid").toString();
             StorageSpaceForm form(iD, this, false);
             form.exec();
+        }else if(stringVar == "contractor"){
+            QString iD = record.value("contractorid").toString();
+            ContractorForm form(iD, this, false);
+            form.exec();
+        }else if(stringVar == "organization"){
+            QString iD = record.value("organizationid").toString();
+            OrganizationForm form(iD, this, false);
+            form.exec();
+        }else if(stringVar == "nomenclature"){
+            QString iD = record.value("nomenclatureid").toString();
+            NomenclatureForm form(iD, this, false);
+            form.exec();
+        }else if(stringVar == "ingridient"){
+            QString iD = record.value("ingridientid").toString();
+            IngredientForm form(iD, this, false);
+            form.exec();
         }
     }
 
@@ -500,4 +590,24 @@ void MainWindow::viewNode()
 void MainWindow::viewStorageSpace()
 {
     viewTemplateTable("storagespace");
+}
+
+void MainWindow::viewContractor()
+{
+    viewTemplateTable("contractor");
+}
+
+void MainWindow::viewOrganization()
+{
+    viewTemplateTable("organization");
+}
+
+void MainWindow::viewNomenclature()
+{
+    viewTemplateTable("nomenclature");
+}
+
+void MainWindow::viewIngridient()
+{
+    viewTemplateTable("ingridient");
 }

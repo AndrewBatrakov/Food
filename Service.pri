@@ -6,7 +6,10 @@ HEADERS += \
     $$PWD/dbdirection.h \
     $$PWD/registrationform.h \
     $$PWD/getbase.h \
-    $$PWD/boolitemdelegate.h
+    $$PWD/boolitemdelegate.h \
+    $$PWD/viewlisttable.h \
+    $$PWD/searchform.h \
+    $$PWD/horizontalitemdelegate.h
 
 SOURCES += \
     $$PWD/prefixform.cpp \
@@ -16,4 +19,7 @@ SOURCES += \
     $$PWD/dbdirection.cpp \
     $$PWD/registrationform.cpp \
     $$PWD/getbase.cpp \
-    $$PWD/boolitemdelegate.cpp
+    $$PWD/boolitemdelegate.cpp \
+    $$PWD/viewlisttable.cpp \
+    $$PWD/searchform.cpp \
+    $$PWD/horizontalitemdelegate.cpp

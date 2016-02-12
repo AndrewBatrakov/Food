@@ -1,13 +1,14 @@
 #ifndef INGREDIENTFORM_H
 #define INGREDIENTFORM_H
 
-#include <QWidget>
+#include <QtWidgets>
+#include "lineedit.h"
 
-class IngredientForm : public QWidget
+class IngredientForm : public QDialog
 {
     Q_OBJECT
 public:
-    explicit IngredientForm(QWidget *parent = 0);
+    IngredientForm(QString, QWidget *, bool);
 
 signals:
 

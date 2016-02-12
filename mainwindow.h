@@ -35,13 +35,13 @@ private slots:
     void viewNode();
     void viewUnit();
     void viewStorageSpace();
-    //void viewSubdivision();
-    //void viewMedicalService();
-    //void viewTreatment();
+    void viewContractor();
+    void viewNomenclature();
+    void viewIngridient();
     //void viewDisease();
     //void viewLocation();
 //    void viewTypeOfWork();
-//    void viewOrganization();
+    void viewOrganization();
 //    void viewPreparation();
 //    void viewPreparationDoc();
 
@@ -80,6 +80,10 @@ private:
     QAction *nodeAction;
     QAction *unitAction;
     QAction *storageSpaceAction;
+    QAction *contractorAction;
+    QAction *organizationAction;
+    QAction *nomenclatureAction;
+    QAction *ingridientAction;
 
     QMenu *documentMenu;
     QAction *preparationDocAction;

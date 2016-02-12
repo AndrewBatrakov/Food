@@ -1,6 +1,7 @@
 #include "ingredientform.h"
 
-IngredientForm::IngredientForm(QWidget *parent) : QWidget(parent)
+IngredientForm::IngredientForm(QString id, QWidget *parent, bool onlyForRead):
+    QDialog(parent)
 {
 
 }

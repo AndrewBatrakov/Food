@@ -12,7 +12,7 @@ StorageSpaceForm::StorageSpaceForm(QString id, QWidget *parent, bool onlyForRead
     labelName = new QLabel(tr("Name:"));
     editName = new LineEdit;
     editName->setReadOnly(onlyForRead);
-    QRegExp regExp("[\\x0410-\\x044f.\"]{5}");
+    QRegExp regExp("[\\x0410-\\x044f.- 0-9\"]{100}");
     editName->setValidator(new QRegExpValidator(regExp,this));
     labelName->setBuddy(editName);
 
@@ -64,98 +64,92 @@ StorageSpaceForm::StorageSpaceForm(QString id, QWidget *parent, bool onlyForRead
 
 void StorageSpaceForm::editRecord()
 {
-//    if(!editName->text().isEmpty()){
-//        QTextStream stream(&exchangeFile);
-//        QString line;
-//        while(!stream.atEnd()){
-//            stream.readLine();
-//        }
-//        if(indexTemp != ""){
-//            QSqlQuery query;
-//            query.prepare("UPDATE unit SET unitname = :name, fullname = :fullname"
-//                          " WHERE unitid = :id");
-//            query.bindValue(":name",editName->text());
-//            query.bindValue(":fullname",editFullName->text());
-//            query.bindValue(":id",indexTemp);
-//            query.exec();
-//            line += "UPDATE unit SET unitnname = '";
-//            line += editName->text().toUtf8();
-//            line += "', fullname = '";
-//            line += editFullName->text().toUtf8();
-//            line += "' WHERE unitid = '";
-//            line += indexTemp;
-//            line += "'";
-//            line += "\r\n";
-//            stream<<line;
-//        }else{
-//            QSqlQuery query;
-//            query.prepare("SELECT * FROM unit WHERE unitname = :name");
-//            query.bindValue(":name",editName->text().simplified());
-//            query.exec();
-//            query.next();
-//            if(!query.isValid()){
-//                NumPrefix numPrefix(this);
-//                indexTemp = numPrefix.getPrefix("unit");
-//                if(indexTemp == ""){
-//                    close();
-//                }else{
-//                    QSqlQuery query;
-//                    query.prepare("INSERT INTO unit (unitid, unitname, fullname) "
-//                                  "VALUES(:id, :name, :fullname)");
-//                    query.bindValue(":id",indexTemp);
-//                    query.bindValue(":name",editName->text().simplified());
-//                    query.bindValue(":fullname",editFullName->text().simplified());
-//                    query.exec();
-//                    line += "INSERT INTO unit (unitid, unitname, fullname) VALUES('";
-//                    line += indexTemp;
-//                    line += "', '";
-//                    line += editName->text().toUtf8();
-//                    line += "', '";
-//                    line += editFullName->text().toUtf8();
-//                    line += "')";
-//                    line += "\r\n";
-//                    stream<<line;
-//                }
-//            }else{
-//                QString tempString = editName->text();
-//                tempString += QObject::tr(" is availble!");
-//                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
-//            }
-//        }
-//        emit accept();
-//        close();
-//    }else{
-//        QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("Name don't be empty!"));
-//    }
+    if(!editName->text().isEmpty()){
+        QTextStream stream(&exchangeFile);
+        QString line;
+        while(!stream.atEnd()){
+            stream.readLine();
+        }
+        if(indexTemp != ""){
+            QSqlQuery query;
+            query.prepare("UPDATE storagespace SET storagespacename = :name"
+                          " WHERE storagespaceid = :id");
+            query.bindValue(":name",editName->text());
+            query.bindValue(":id",indexTemp);
+            query.exec();
+            line += "UPDATE storagespace SET storagespacename = '";
+            line += editName->text().toUtf8();
+            line += "' WHERE storagespaceid = '";
+            line += indexTemp;
+            line += "'";
+            line += "\r\n";
+            stream<<line;
+        }else{
+            QSqlQuery query;
+            query.prepare("SELECT * FROM storagespace WHERE storagespacename = :name");
+            query.bindValue(":name",editName->text().simplified());
+            query.exec();
+            query.next();
+            if(!query.isValid()){
+                NumPrefix numPrefix(this);
+                indexTemp = numPrefix.getPrefix("storagespace");
+                if(indexTemp == ""){
+                    close();
+                }else{
+                    QSqlQuery query;
+                    query.prepare("INSERT INTO storagespace (storagespaceid, storagespacename) "
+                                  "VALUES(:id, :name)");
+                    query.bindValue(":id",indexTemp);
+                    query.bindValue(":name",editName->text().simplified());
+                    query.exec();
+                    line += "INSERT INTO storagespace (storagespaceid, storagespacename) VALUES('";
+                    line += indexTemp;
+                    line += "', '";
+                    line += editName->text().toUtf8();
+                    line += "')";
+                    line += "\r\n";
+                    stream<<line;
+                }
+            }else{
+                QString tempString = editName->text();
+                tempString += QObject::tr(" is availble!");
+                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
+            }
+        }
+        emit accept();
+        close();
+    }else{
+        QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("Name don't be empty!"));
+    }
 }
 
 void StorageSpaceForm::deleteRecord()
 {
-//    ForDelete forDelete(indexTemp,"unit",this);
-//    forDelete.result();
-//    forDelete.deleteOnDefault();
-//    QTextStream stream(&exchangeFile);
-//    QString line;
-//    while(!stream.atEnd()){
-//        stream.readLine();
-//    }
-//    QSqlQuery query;
-//    query.prepare("DELETE FROM unit WHERE unitid = :id");
-//    query.bindValue(":id",indexTemp);
-//    query.exec();
-//    query.next();
-//    line += "DELETE FROM unit WHERE unitid = '";
-//    line += indexTemp;
-//    line += "'";
-//    line += "\r\n";
-//    stream<<line;
+    ForDelete forDelete(indexTemp,"storagespace",this);
+    forDelete.result();
+    forDelete.deleteOnDefault();
+    QTextStream stream(&exchangeFile);
+    QString line;
+    while(!stream.atEnd()){
+        stream.readLine();
+    }
+    QSqlQuery query;
+    query.prepare("DELETE FROM storagespace WHERE storagespaceid = :id");
+    query.bindValue(":id",indexTemp);
+    query.exec();
+    query.next();
+    line += "DELETE FROM storagespace WHERE storagespaceid = '";
+    line += indexTemp;
+    line += "'";
+    line += "\r\n";
+    stream<<line;
 }
 
-void StorageSpaceForm::done(int)
+void StorageSpaceForm::done(int result)
 {
     exchangeFile.close();
     writeSettings();
-    //QDialog::done(result);
+    QDialog::done(result);
 }
 
 void StorageSpaceForm::readSettings()

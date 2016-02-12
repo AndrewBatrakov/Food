@@ -12,5 +12,6 @@
         <file>Sklad.png</file>
         <file>add.png</file>
         <file>QWidgetStyle.txt</file>
+        <file>QToolButtonStyle.txt</file>
     </qresource>
 </RCC>
