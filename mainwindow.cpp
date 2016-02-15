@@ -13,6 +13,7 @@
 #include "organizationform.h"
 #include "nomenclatureform.h"
 #include "ingredientform.h"
+#include "mealsform.h"
 
 //Documents
 
@@ -161,8 +162,8 @@ void MainWindow::createActions()
     connect(nomenclatureAction,SIGNAL(triggered()),this,SLOT(viewNomenclature()));
     ingridientAction = new QAction(tr("Ingridient..."),this);
     connect(ingridientAction,SIGNAL(triggered()),this,SLOT(viewIngridient()));
-//    diseaseAction = new QAction(tr("Disease..."),this);
-//    connect(diseaseAction,SIGNAL(triggered()),this,SLOT(viewDisease()));
+    mealsAction = new QAction(tr("Meals..."),this);
+    connect(mealsAction,SIGNAL(triggered()),this,SLOT(viewMeals()));
 //    locationActon = new QAction(tr("Location..."),this);
 //    connect(locationActon,SIGNAL(triggered()),this,SLOT(viewLocation()));
 //    typeOfWorkAction = new QAction(tr("Type Of Work..."),this);
@@ -213,8 +214,7 @@ void MainWindow::createMenu()
     referenceMenu->addAction(organizationAction);
     referenceMenu->addAction(nomenclatureAction);
     referenceMenu->addAction(ingridientAction);
-//    referenceMenu->addSeparator();
-//    referenceMenu->addAction(preparationAction);
+    referenceMenu->addAction(mealsAction);
 //    referenceMenu->addAction(medicalService);
 //    //referenceMenu->addAction(treatmentAction);
 //    referenceMenu->addAction(diseaseAction);
@@ -272,7 +272,7 @@ void MainWindow::aboutProgramm()
                       "\"Send mail\"");
     msgBox.setText(textMessage);
     //msgBox.setFont(QFont(QFontDatabase::applicationFontFamilies(fontId).first()));
-    QPushButton *sendM = new QPushButton(tr("Send mail\nto developer"));
+    QPushButton *sendM = new QPushButton(tr("Send"));
     sendM->setStyleSheet("QPushButton {font: yellow}");
     msgBox.addButton(QMessageBox::Ok);
     msgBox.addButton(sendM,QMessageBox::AcceptRole);
@@ -395,15 +395,19 @@ void MainWindow::viewTemplateTable(QString tempTable)
         }
         strivgValue = tr("Nomenclature");
     }else if(tempTable == "ingridient"){
-//        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
-//        templateModel->setHeaderData(2,Qt::Horizontal,tr("Unit"));
-//        templateModel->setRelation(2,QSqlRelation("unit","unitid","unitname"));
-//        templateModel->setHeaderData(3,Qt::Horizontal,tr("Cost"));
-//        if(setFilter){
-//            templateModel->setFilter(QString("nomenclaturename LIKE '%%1%'").arg(filterTable));
-//        }
+        templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+        if(setFilter){
+            templateModel->setFilter(QString("ingridientname LIKE '%%1%'").arg(filterTable));
+        }
         strivgValue = tr("Ingridient");
-    }
+    }else if(tempTable == "meals"){
+                templateModel->setHeaderData(1,Qt::Horizontal,tr("Name"));
+                templateModel->setHeaderData(2,Qt::Horizontal,tr("Recipe Number"));
+                if(setFilter){
+                    templateModel->setFilter(QString("mealsname LIKE '%%1%'").arg(filterTable));
+                }
+                strivgValue = tr("Meals");
+            }
     if(!delAll){
         templateModel->select();
         QHeaderView *head = tableView->horizontalHeader();
@@ -414,16 +418,20 @@ void MainWindow::viewTemplateTable(QString tempTable)
         }else{
             tableView->setColumnHidden(0, true);
         }
+        if(tempTable == "meals"){
+            tableView->setColumnHidden(3,true);
+            tableView->setColumnHidden(4,true);
+            tableView->setColumnHidden(5,true);
+            tableView->setColumnHidden(6,true);
+        }
         tableView->setSelectionMode(QAbstractItemView::SingleSelection);
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         if(tempTable == "node"){
             tableView->setItemDelegateForColumn(2,new BoolItemDelegate(this));
-            //templateModel->record().
         }
         if(tempTable == "nomenclature"){
             tableView->setItemDelegateForColumn(3,new HorizontalItemDelegate(this,"left"));
-            //templateModel->record().
         }
         tableView->setAlternatingRowColors(true);
         tableView->resizeColumnsToContents();
@@ -475,6 +483,9 @@ void MainWindow::addRecordOfTable()
         form.exec();
     }else if(valueTemp == "ingridient"){
         IngredientForm form("",this,false);
+        form.exec();
+    }else if(valueTemp == "meals"){
+        MealsForm form("",this,false);
         form.exec();
     }
     QModelIndex modIndex = tableView->currentIndex();
@@ -529,6 +540,10 @@ void MainWindow::deleteRecordOfTable()
             }else if(valueTemp == "ingridient"){
                 iDValue = record.value("ingridientid").toString();
                 IngredientForm form(iDValue,this,false);
+                form.deleteRecord();
+            }else if(valueTemp == "meals"){
+                iDValue = record.value("mealsid").toString();
+                MealsForm form(iDValue,this,false);
                 //form.deleteRecord();
             }
         }
@@ -570,6 +585,10 @@ void MainWindow::editRecordOfTable()
             QString iD = record.value("ingridientid").toString();
             IngredientForm form(iD, this, false);
             form.exec();
+        }else if(stringVar == "meals"){
+            QString iD = record.value("mealsid").toString();
+            MealsForm form(iD, this, false);
+            form.exec();
         }
     }
 
@@ -610,4 +629,9 @@ void MainWindow::viewNomenclature()
 void MainWindow::viewIngridient()
 {
     viewTemplateTable("ingridient");
+}
+
+void MainWindow::viewMeals()
+{
+    viewTemplateTable("meals");
 }

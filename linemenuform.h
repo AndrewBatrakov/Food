@@ -1,9 +1,9 @@
 #ifndef LINEMENUFORM_H
 #define LINEMENUFORM_H
 
-#include <QWidget>
+#include <QtWidgets>
 
-class LineMenuForm : public QWidget
+class LineMenuForm : public QDialog
 {
     Q_OBJECT
 public:

@@ -1,13 +1,13 @@
 #ifndef MEALSFORM_H
 #define MEALSFORM_H
 
-#include <QWidget>
+#include <QtWidgets>
 
-class MealsForm : public QWidget
+class MealsForm : public QDialog
 {
     Q_OBJECT
 public:
-    explicit MealsForm(QWidget *parent = 0);
+    explicit MealsForm(QString, QWidget *, bool);
 
 signals:
 

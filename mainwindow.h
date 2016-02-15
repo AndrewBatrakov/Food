@@ -38,7 +38,7 @@ private slots:
     void viewContractor();
     void viewNomenclature();
     void viewIngridient();
-    //void viewDisease();
+    void viewMeals();
     //void viewLocation();
 //    void viewTypeOfWork();
     void viewOrganization();
@@ -84,6 +84,7 @@ private:
     QAction *organizationAction;
     QAction *nomenclatureAction;
     QAction *ingridientAction;
+    QAction *mealsAction;
 
     QMenu *documentMenu;
     QAction *preparationDocAction;

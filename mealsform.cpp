@@ -1,6 +1,6 @@
 #include "mealsform.h"
 
-MealsForm::MealsForm(QWidget *parent) : QWidget(parent)
+MealsForm::MealsForm(QString id, QWidget *parent, bool onlyForRead) : QDialog(parent)
 {
 
 }

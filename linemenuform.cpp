@@ -1,6 +1,6 @@
 #include "linemenuform.h"
 
-LineMenuForm::LineMenuForm(QWidget *parent) : QWidget(parent)
+LineMenuForm::LineMenuForm(QWidget *parent) : QDialog(parent)
 {
 
 }
