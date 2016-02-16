@@ -61,6 +61,7 @@ NomenclatureForm::NomenclatureForm(QString id, QWidget *parent, bool onlyForRead
     editCost = new LineEdit;
     QRegExp regCost("^([1-9][0-9]*|0)(\\.|,)[0-9]{2}");
     editCost->setValidator(new QRegExpValidator(regCost,this));
+    connect(editCost,SIGNAL(textEdited(QString)),SLOT(changeDot(QString)));
 
     saveButton = new QPushButton(tr("Save"));
     connect(saveButton,SIGNAL(clicked()),this,SLOT(editRecord()));
@@ -87,7 +88,7 @@ NomenclatureForm::NomenclatureForm(QString id, QWidget *parent, bool onlyForRead
         while(query.next()){
             editName->setText(query.value(0).toString());
             editUnit->setText(query.value(1).toString());
-            double tt = query.value(2).toReal();
+            double tt = query.value(2).toDouble();
             editCost->setText(QString::number(tt,'f',2));
         }
     }else{
@@ -129,35 +130,36 @@ void NomenclatureForm::editRecord()
         while(!stream.atEnd()){
             stream.readLine();
         }
-        if(indexTemp != ""){
-            QSqlQuery query;
-            query.prepare("UPDATE nomenclature SET nomenclaturename = :name, "
-                          "unitid = (SELECT unitid FROM unit WHERE unitname = :unitname), "
-                          "cost = :cost "
-                          " WHERE nomenclatureid = :id");
-            query.bindValue(":name",editName->text());
-            query.bindValue(":unitname",editUnit->text());
-            query.bindValue(":id",indexTemp);
-            query.bindValue(":cost",editCost->text());
-            query.exec();
-            line += "UPDATE nomenclature SET nomenclaturename = '";
-            line += editName->text().toUtf8();
-            line += "', unitid = (SELECT unitid FROM unit WHERE unitname = '";
-            line += editUnit->text().toUtf8();
-            line += "', cost = '";
-            line += editCost->text();
-            line += "' WHERE nomenclatureid = '";
-            line += indexTemp;
-            line += "'";
-            line += "\r\n";
-            stream<<line;
-        }else{
-            QSqlQuery query;
-            query.prepare("SELECT * FROM nomenclature WHERE nomenclaturename = :name");
-            query.bindValue(":name",editName->text().simplified());
-            query.exec();
-            query.next();
-            if(!query.isValid()){
+        QSqlQuery query;
+        query.prepare("SELECT * FROM nomenclature WHERE (nomenclaturename = :name AND cost = :cost)");
+        query.bindValue(":name",editName->text().simplified());
+        query.bindValue(":cost",editCost->text().toDouble());
+        query.exec();
+        query.next();
+        if(!query.isValid()){
+            if(indexTemp != ""){
+                QSqlQuery query;
+                query.prepare("UPDATE nomenclature SET nomenclaturename = :name, "
+                              "unitid = (SELECT unitid FROM unit WHERE unitname = :unitname), "
+                              "cost = :cost "
+                              " WHERE nomenclatureid = :id");
+                query.bindValue(":name",editName->text());
+                query.bindValue(":unitname",editUnit->text());
+                query.bindValue(":id",indexTemp);
+                query.bindValue(":cost",editCost->text());
+                query.exec();
+                line += "UPDATE nomenclature SET nomenclaturename = '";
+                line += editName->text().toUtf8();
+                line += "', unitid = (SELECT unitid FROM unit WHERE unitname = '";
+                line += editUnit->text().toUtf8();
+                line += "', cost = '";
+                line += editCost->text().toDouble();
+                line += "' WHERE nomenclatureid = '";
+                line += indexTemp;
+                line += "'";
+                line += "\r\n";
+                stream<<line;
+            }else{
                 NumPrefix numPrefix(this);
                 indexTemp = numPrefix.getPrefix("nomenclature");
                 if(indexTemp == ""){
@@ -170,7 +172,7 @@ void NomenclatureForm::editRecord()
                     query.bindValue(":id",indexTemp);
                     query.bindValue(":name",editName->text().simplified());
                     query.bindValue(":unitname",editUnit->text().simplified());
-                    query.bindValue(":cost",editCost->text());
+                    query.bindValue(":cost",editCost->text().toDouble());
                     query.exec();
                     line += "INSERT INTO unit (unitid, unitname, unitid) VALUES('";
                     line += indexTemp;
@@ -179,19 +181,20 @@ void NomenclatureForm::editRecord()
                     line += "', (SELECT unitid FROM unit WHERE unitname = '";
                     line += editUnit->text().toUtf8();
                     line += "', '";
-                    line += editCost->text();
+                    line += editCost->text().toDouble();
                     line += "')";
                     line += "\r\n";
                     stream<<line;
                 }
-            }else{
-                QString tempString = editName->text();
-                tempString += QObject::tr(" is availble!");
-                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
             }
+            emit accept();
+            close();
+        }else{
+            QString tempString = editName->text();
+            //tempString
+            tempString += QObject::tr(" is availble!");
+            QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
         }
-        emit accept();
-        close();
     }else{
         QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("Name don't be empty!"));
     }
@@ -280,5 +283,13 @@ void NomenclatureForm::listUnitRecord()
         query.exec();
         query.next();
         editUnit->setText(query.value(0).toString());
+    }
+}
+
+void NomenclatureForm::changeDot(QString st)
+{
+    if(st.contains(",")){
+        st.replace(",",".");
+        editCost->setText(st);
     }
 }

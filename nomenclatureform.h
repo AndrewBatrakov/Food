@@ -25,6 +25,8 @@ private slots:
     void seeUnitRecord();
     void listUnitRecord();
 
+    void changeDot(QString);
+
 private:
     QLabel *labelName;
     LineEdit *editName;

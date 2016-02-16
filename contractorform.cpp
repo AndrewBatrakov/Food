@@ -70,27 +70,27 @@ void ContractorForm::editRecord()
         while(!stream.atEnd()){
             stream.readLine();
         }
-        if(indexTemp != ""){
-            QSqlQuery query;
-            query.prepare("UPDATE contractor SET contractorname = :name"
-                          " WHERE contractorid = :id");
-            query.bindValue(":name",editName->text());
-            query.bindValue(":id",indexTemp);
-            query.exec();
-            line += "UPDATE contractor SET contractorname = '";
-            line += editName->text().toUtf8();
-            line += "' WHERE contractorid = '";
-            line += indexTemp;
-            line += "'";
-            line += "\r\n";
-            stream<<line;
-        }else{
-            QSqlQuery query;
-            query.prepare("SELECT * FROM contractor WHERE contractorname = :name");
-            query.bindValue(":name",editName->text().simplified());
-            query.exec();
-            query.next();
-            if(!query.isValid()){
+        QSqlQuery query;
+        query.prepare("SELECT * FROM contractor WHERE contractorname = :name");
+        query.bindValue(":name",editName->text().simplified());
+        query.exec();
+        query.next();
+        if(!query.isValid()){
+            if(indexTemp != ""){
+                QSqlQuery query;
+                query.prepare("UPDATE contractor SET contractorname = :name"
+                              " WHERE contractorid = :id");
+                query.bindValue(":name",editName->text());
+                query.bindValue(":id",indexTemp);
+                query.exec();
+                line += "UPDATE contractor SET contractorname = '";
+                line += editName->text().toUtf8();
+                line += "' WHERE contractorid = '";
+                line += indexTemp;
+                line += "'";
+                line += "\r\n";
+                stream<<line;
+            }else{
                 NumPrefix numPrefix(this);
                 indexTemp = numPrefix.getPrefix("contractor");
                 if(indexTemp == ""){
@@ -110,14 +110,14 @@ void ContractorForm::editRecord()
                     line += "\r\n";
                     stream<<line;
                 }
-            }else{
-                QString tempString = editName->text();
-                tempString += QObject::tr(" is availble!");
-                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
             }
+            emit accept();
+            close();
+        }else{
+            QString tempString = editName->text();
+            tempString += QObject::tr(" is availble!");
+            QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
         }
-        emit accept();
-        close();
     }else{
         QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("Name don't be empty!"));
     }

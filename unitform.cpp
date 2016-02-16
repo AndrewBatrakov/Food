@@ -82,30 +82,30 @@ void UnitForm::editRecord()
         while(!stream.atEnd()){
             stream.readLine();
         }
-        if(indexTemp != ""){
-            QSqlQuery query;
-            query.prepare("UPDATE unit SET unitname = :name, fullname = :fullname"
-                          " WHERE unitid = :id");
-            query.bindValue(":name",editName->text());
-            query.bindValue(":fullname",editFullName->text());
-            query.bindValue(":id",indexTemp);
-            query.exec();
-            line += "UPDATE unit SET unitnname = '";
-            line += editName->text().toUtf8();
-            line += "', fullname = '";
-            line += editFullName->text().toUtf8();
-            line += "' WHERE unitid = '";
-            line += indexTemp;
-            line += "'";
-            line += "\r\n";
-            stream<<line;
-        }else{
-            QSqlQuery query;
-            query.prepare("SELECT * FROM unit WHERE unitname = :name");
-            query.bindValue(":name",editName->text().simplified());
-            query.exec();
-            query.next();
-            if(!query.isValid()){
+        QSqlQuery query;
+        query.prepare("SELECT * FROM unit WHERE unitname = :name");
+        query.bindValue(":name",editName->text().simplified());
+        query.exec();
+        query.next();
+        if(!query.isValid()){
+            if(indexTemp != ""){
+                QSqlQuery query;
+                query.prepare("UPDATE unit SET unitname = :name, fullname = :fullname"
+                              " WHERE unitid = :id");
+                query.bindValue(":name",editName->text());
+                query.bindValue(":fullname",editFullName->text());
+                query.bindValue(":id",indexTemp);
+                query.exec();
+                line += "UPDATE unit SET unitnname = '";
+                line += editName->text().toUtf8();
+                line += "', fullname = '";
+                line += editFullName->text().toUtf8();
+                line += "' WHERE unitid = '";
+                line += indexTemp;
+                line += "'";
+                line += "\r\n";
+                stream<<line;
+            }else{
                 NumPrefix numPrefix(this);
                 indexTemp = numPrefix.getPrefix("unit");
                 if(indexTemp == ""){
@@ -128,14 +128,15 @@ void UnitForm::editRecord()
                     line += "\r\n";
                     stream<<line;
                 }
-            }else{
-                QString tempString = editName->text();
-                tempString += QObject::tr(" is availble!");
-                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
             }
+            emit accept();
+            close();
+        }else{
+            QString tempString = editName->text();
+            tempString += QObject::tr(" is availble!");
+            QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
+
         }
-        emit accept();
-        close();
     }else{
         QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("Name don't be empty!"));
     }

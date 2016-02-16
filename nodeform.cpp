@@ -88,31 +88,32 @@ void NodeForm::editRecord()
             while(!stream.atEnd()){
                 stream.readLine();
             }
-            if(indexTemp != ""){
-                QSqlQuery query;
-                query.prepare("UPDATE node SET nodename = :name, head = :head"
-                              " WHERE nodeid = :id");
-                query.bindValue(":name",editName->text());
-                query.bindValue(":head",editHead->checkState());
-                query.bindValue(":id",indexTemp);
-                query.exec();
-                line += "UPDATE node SET nodename = '";
-                line += editName->text().toUtf8();
-                line += "', head = '";
-                line += QString::number(editHead->checkState());
-                line += "' WHERE nodeid = '";
-                line += indexTemp;
-                line += "'";
-                line += "\r\n";
-                stream<<line;
-            }else{
-                indexTemp = editKod->text().simplified();
-                QSqlQuery query;
-                query.prepare("SELECT * FROM node WHERE nodename = :name");
-                query.bindValue(":name",editName->text().simplified());
-                query.exec();
-                query.next();
-                if(!query.isValid()){
+            QSqlQuery query;
+            query.prepare("SELECT * FROM node WHERE nodename = :name");
+            query.bindValue(":name",editName->text().simplified());
+            query.exec();
+            query.next();
+            if(!query.isValid()){
+                if(indexTemp != ""){
+                    QSqlQuery query;
+                    query.prepare("UPDATE node SET nodename = :name, head = :head"
+                                  " WHERE nodeid = :id");
+                    query.bindValue(":name",editName->text());
+                    query.bindValue(":head",editHead->checkState());
+                    query.bindValue(":id",indexTemp);
+                    query.exec();
+                    line += "UPDATE node SET nodename = '";
+                    line += editName->text().toUtf8();
+                    line += "', head = '";
+                    line += QString::number(editHead->checkState());
+                    line += "' WHERE nodeid = '";
+                    line += indexTemp;
+                    line += "'";
+                    line += "\r\n";
+                    stream<<line;
+                }else{
+                    indexTemp = editKod->text().simplified();
+
                     QSqlQuery query;
                     query.prepare("INSERT INTO node (nodeid, nodename, head) "
                                   "VALUES(:id, :name, :head)");
@@ -129,14 +130,15 @@ void NodeForm::editRecord()
                     line += "')";
                     line += "\r\n";
                     stream<<line;
-                }else{
-                    QString tempString = editName->text();
-                    tempString += QObject::tr(" is availble!");
-                    QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
                 }
+                emit accept();
+                close();
+            }else{
+                QString tempString = editName->text();
+                tempString += QObject::tr(" is availble!");
+                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
             }
-            emit accept();
-            close();
+
         }else{
             QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("Name don't be empty!"));
         }

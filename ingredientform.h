@@ -20,6 +20,10 @@ private slots:
     void readSettings();
     void writeSettings();
 
+    void addRecordOfTable();
+    void deleteRecordOfTable();
+    void editRecordOfTable();
+
 private:
     QLabel *labelName;
     LineEdit *editName;

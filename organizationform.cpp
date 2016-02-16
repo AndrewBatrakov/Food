@@ -70,27 +70,27 @@ void OrganizationForm::editRecord()
         while(!stream.atEnd()){
             stream.readLine();
         }
-        if(indexTemp != ""){
-            QSqlQuery query;
-            query.prepare("UPDATE organization SET organizationname = :name"
-                          " WHERE organizationid = :id");
-            query.bindValue(":name",editName->text());
-            query.bindValue(":id",indexTemp);
-            query.exec();
-            line += "UPDATE organization SET organizationname = '";
-            line += editName->text().toUtf8();
-            line += "' WHERE organizationid = '";
-            line += indexTemp;
-            line += "'";
-            line += "\r\n";
-            stream<<line;
-        }else{
-            QSqlQuery query;
-            query.prepare("SELECT * FROM organization WHERE organizationname = :name");
-            query.bindValue(":name",editName->text().simplified());
-            query.exec();
-            query.next();
-            if(!query.isValid()){
+        QSqlQuery query;
+        query.prepare("SELECT * FROM organization WHERE organizationname = :name");
+        query.bindValue(":name",editName->text().simplified());
+        query.exec();
+        query.next();
+        if(!query.isValid()){
+            if(indexTemp != ""){
+                QSqlQuery query;
+                query.prepare("UPDATE organization SET organizationname = :name"
+                              " WHERE organizationid = :id");
+                query.bindValue(":name",editName->text());
+                query.bindValue(":id",indexTemp);
+                query.exec();
+                line += "UPDATE organization SET organizationname = '";
+                line += editName->text().toUtf8();
+                line += "' WHERE organizationid = '";
+                line += indexTemp;
+                line += "'";
+                line += "\r\n";
+                stream<<line;
+            }else{
                 NumPrefix numPrefix(this);
                 indexTemp = numPrefix.getPrefix("organization");
                 if(indexTemp == ""){
@@ -110,14 +110,15 @@ void OrganizationForm::editRecord()
                     line += "\r\n";
                     stream<<line;
                 }
-            }else{
-                QString tempString = editName->text();
-                tempString += QObject::tr(" is availble!");
-                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
             }
+            emit accept();
+            close();
+        }else{
+            QString tempString = editName->text();
+            tempString += QObject::tr(" is availble!");
+            QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
         }
-        emit accept();
-        close();
+
     }else{
         QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("Name don't be empty!"));
     }
