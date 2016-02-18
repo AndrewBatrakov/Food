@@ -2,6 +2,7 @@
 #include <QtSql>
 #include "fordelete.h"
 #include "numprefix.h"
+#include "viewlisttable.h"
 
 IngredientForm::IngredientForm(QString id, QWidget *parent, bool onlyForRead):
     QDialog(parent)
@@ -246,7 +247,77 @@ void IngredientForm::done(int result)
 
 void IngredientForm::addRecordOfTable()
 {
+    if(!editName->text().isEmpty()){
 
+        int row = nomenclaturaWidget->rowCount();
+
+        ViewListTable listTemp("","nomenclature",this);
+        listTemp.exec();
+        QString idN = listTemp.rowOut();
+        QString nameN;
+        if(idN != ""){
+            bool noRecord = true;
+            //Проверка на существование записи в таблице
+            for(int i = 0; i < nomenclaturaWidget->rowCount(); ++i){
+                if(nomenclaturaWidget->item(i,4)->text() == idN){
+                    noRecord = false;
+                    nameN = nomenclaturaWidget->item(i,0)->text();
+                }
+            }
+            if(noRecord){
+                QSqlQuery query;
+                query.prepare("SELECT nomenclaturename FROM nomenclature WHERE nomenclatureid = :id");
+                query.bindValue(":id",idN);
+                query.exec();
+                query.next();
+
+                nomenclaturaWidget->insertRow(row);
+                QTableWidgetItem *item = new QTableWidgetItem;
+                nomenclaturaWidget->setItem(row,0,item);
+                nomenclaturaWidget->item(row,0)->setText(query.value(0).toString());
+//                QTableWidgetItem *item2 = new QTableWidgetItem;
+//                medicalServiceWidget->setItem(row,2,item2);
+//                double column2 = query.value(1).toDouble();
+//                medicalServiceWidget->item(row,2)->setText(QString::number(column2,'f',2));
+//                QTableWidgetItem *item3 = new QTableWidgetItem;
+//                medicalServiceWidget->setItem(row,3,item3);
+//                medicalServiceWidget->item(row,3)->setText("0");
+//                QTableWidgetItem *item1 = new QTableWidgetItem;
+//                medicalServiceWidget->setItem(row,1,item1);
+//                medicalServiceWidget->item(row,1)->setText("0");
+
+//                QTableWidgetItem *item4 = new QTableWidgetItem;
+//                medicalServiceWidget->setItem(row,4,item4);
+//                medicalServiceWidget->item(row,4)->setText(query.value(2).toString());
+
+//                NumPrefix numPrefix(this);
+//                QString indexMS = numPrefix.getPrefix("treatmentservice");
+//                if(indexMS == ""){
+//                    close();
+//                }
+
+//                QTableWidgetItem *item5 = new QTableWidgetItem;
+//                medicalServiceWidget->setItem(row,5,item5);
+//                medicalServiceWidget->item(row,5)->setText(indexMS);
+
+//                QSqlQuery queryMS;
+//                queryMS.prepare("INSERT INTO treatmentservice (treatmentserviceid, treatmentdocid, medicalserviceid, number) "
+//                                "VALUES(:treatmentserviceid, :treatmentdocid, :medicalserviceid, :time)");
+//                queryMS.bindValue(":treatmentserviceid",indexMS);
+//                queryMS.bindValue(":treatmentdocid",indexTemp);
+//                queryMS.bindValue(":medicalserviceid",medicalServiceWidget->item(row,4)->text());
+//                queryMS.bindValue(":time",medicalServiceWidget->item(row,1)->text());
+//                queryMS.exec();
+            }else{
+                QString tempString = nameN;
+                tempString += QObject::tr(" is availble!");
+                QMessageBox::warning(this,QObject::tr("Attention!!!"),tempString);
+            }
+        }
+
+    }else{
+        QMessageBox::warning(this,QObject::tr("Attention!!!"),tr("FIO don't be empty!"));
+    }
 }
 
 void IngredientForm::deleteRecordOfTable()

@@ -26,6 +26,7 @@ private slots:
     void listUnitRecord();
 
     void changeDot(QString);
+    void firstLetter(QString);
 
 private:
     QLabel *labelName;

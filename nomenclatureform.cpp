@@ -18,9 +18,10 @@ NomenclatureForm::NomenclatureForm(QString id, QWidget *parent, bool onlyForRead
     labelName = new QLabel(tr("Name:"));
     editName = new LineEdit;
     editName->setReadOnly(onlyForRead);
-    QRegExp regExp("[\\x0410-\\x044f. ()\"]{150}");
+    QRegExp regExp("[\\x0410-\\x044f./0-9% ()\"]{150}");
     editName->setValidator(new QRegExpValidator(regExp,this));
     labelName->setBuddy(editName);
+    connect(editName,SIGNAL(textChanged(QString)),SLOT(firstLetter(QString)));
 
     labelUnit = new QLabel(tr("Unit:"));
     editUnit = new LineEdit;
@@ -292,4 +293,12 @@ void NomenclatureForm::changeDot(QString st)
         st.replace(",",".");
         editCost->setText(st);
     }
+}
+
+void NomenclatureForm::firstLetter(QString st)
+{
+    QString qq = st.left(1).toUpper();
+    //qq.toUpper();
+    st.replace(0,1,qq);
+    editName->setText(st);
 }
