@@ -9,7 +9,8 @@ HEADERS += \
     $$PWD/boolitemdelegate.h \
     $$PWD/viewlisttable.h \
     $$PWD/searchform.h \
-    $$PWD/horizontalitemdelegate.h
+    $$PWD/horizontalitemdelegate.h \
+    $$PWD/widgetlisttable.h
 
 SOURCES += \
     $$PWD/prefixform.cpp \
@@ -22,4 +23,5 @@ SOURCES += \
     $$PWD/boolitemdelegate.cpp \
     $$PWD/viewlisttable.cpp \
     $$PWD/searchform.cpp \
-    $$PWD/horizontalitemdelegate.cpp
+    $$PWD/horizontalitemdelegate.cpp \
+    $$PWD/widgetlisttable.cpp

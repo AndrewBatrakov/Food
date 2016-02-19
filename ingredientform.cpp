@@ -2,7 +2,10 @@
 #include <QtSql>
 #include "fordelete.h"
 #include "numprefix.h"
+
+#include "widgetlisttable.h"
 #include "viewlisttable.h"
+
 
 IngredientForm::IngredientForm(QString id, QWidget *parent, bool onlyForRead):
     QDialog(parent)
@@ -60,7 +63,7 @@ IngredientForm::IngredientForm(QString id, QWidget *parent, bool onlyForRead):
     filterID += "'";
 
     //*****************************************************
-    //Medical Service
+    //Nomenclature TableWidget
     //*****************************************************
     nomenclaturaWidget = new QTableWidget(0,4);
     nomenclaturaWidget->setHorizontalHeaderLabels(QStringList()<<tr("Name")<<tr("Coefficient")<<tr("Cost")<<tr("Number"));
@@ -251,7 +254,8 @@ void IngredientForm::addRecordOfTable()
 
         int row = nomenclaturaWidget->rowCount();
 
-        ViewListTable listTemp("","nomenclature",this);
+        //ViewListTable listTemp("","nomenclature",this);
+        WidgetListTable listTemp("","nomenclature",this);
         listTemp.exec();
         QString idN = listTemp.rowOut();
         QString nameN;
